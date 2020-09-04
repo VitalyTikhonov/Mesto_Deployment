@@ -6,7 +6,6 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cards = require('./routes/cards.js');
 const users = require('./routes/users.js');
-const products = require('./routes/products.js');
 const { createUser, login } = require('./controllers/users.js');
 const auth = require('./middleware/auth');
 
@@ -33,7 +32,6 @@ app.post('/signup', createUser);
 app.use(auth);
 app.use('/cards', cards);
 app.use('/users', users);
-app.use('/products', products);
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
