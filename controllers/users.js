@@ -1,8 +1,17 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+
+const DocNotFoundError = require('../errors/DocNotFoundError');
+const BadNewPasswordError = require('../errors/BadNewPasswordError');
+const EmailInUseError = require('../errors/EmailInUseError');
+const InvalidInputError = require('../errors/InvalidInputError');
+
+const { tempKey } = require('../configs/config.js');
+
+const { NODE_ENV, JWT_SECRET } = process.env; // На будущее
 const {
-  loginHandler,
   getAllDocsHandler,
   updateHandler,
   errors,
@@ -10,10 +19,6 @@ const {
   isObjectIdValid,
   passwordRegexp,
 } = require('../helpers/helpers');
-const DocNotFoundError = require('../errors/DocNotFoundError');
-const BadNewPasswordError = require('../errors/BadNewPasswordError');
-const EmailInUseError = require('../errors/EmailInUseError');
-const InvalidInputError = require('../errors/InvalidInputError');
 
 function createUser(req, res, next) {
   const {
@@ -64,10 +69,28 @@ function createUser(req, res, next) {
   }
 }
 
-function login(req, res) {
+function login(req, res, next) {
   const { email, password } = req.body;
   if (typeof email === 'string' && typeof password === 'string') {
-    return loginHandler(User.findByCredentials(email, password), req, res); // Зачем тут return?
+    return User.findByCredentials(email, password) // Зачем тут return?
+      .then((user) => {
+        const token = jwt.sign(
+          { _id: user._id },
+          NODE_ENV === 'production' ? JWT_SECRET : tempKey,
+          { expiresIn: '7d' },
+        );
+        res
+          .cookie('jwt', token, {
+            maxAge: 3600000 * 24 * 7,
+            httpOnly: true,
+            sameSite: true,
+          })
+          .end();
+
+        /* Как токен попадает в req.cookies.jwt при запросе логина, то есть еще до авторизации?.. */
+        // console.log('req.cookies.jwt', req.cookies.jwt);
+      })
+      .catch(next);
   }
   return res.status(400).send({ message: 'Введите логин и пароль' });
 }
