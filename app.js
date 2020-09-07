@@ -35,9 +35,15 @@ app.use('/webdev/projects/mesto/users', users);
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
-// app.use((err, req, res, next) => {
-//     res.status(500).send({ message: 'На сервере произошла ошибка' });
-// });
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({
+    message: statusCode === 500
+      ? 'На сервере произошла ошибка'
+      : message,
+  });
+  next();
+});
 app.listen(PORT, () => {
   console.log(`Сервер запущен, порт: ${PORT}.`);
 });

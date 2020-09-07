@@ -1,7 +1,7 @@
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const {
-  createDocHandler,
   loginHandler,
   getAllDocsHandler,
   getLikeDeleteHandler,
@@ -10,6 +10,7 @@ const {
   isObjectIdValid,
   passwordRegexp,
 } = require('../helpers/helpers');
+const DocNotFoundError = require('../errors/DocNotFound');
 
 function createUser(req, res) {
   const {
@@ -29,13 +30,33 @@ function createUser(req, res) {
     возникали. */
     bcrypt.hash(password, 10)
       .then((hash) => {
-        createDocHandler(User.create({
+        User.create({
           name,
           about,
           avatar,
           password: hash,
           email,
-        }), req, res, 'user');
+        })
+          .then((respObj) => {
+            /* переменная с деструктуризацией const {свойства} = respObj удалена
+            для исключения ошибки линтинга */
+            res.send({
+              name: respObj.name,
+              about: respObj.about,
+              avatar: respObj.avatar,
+              email: respObj.email,
+              _id: respObj._id,
+            });
+          })
+          .catch((err) => {
+            if (err instanceof mongoose.Error.ValidationError) {
+              throw new DocNotFoundError('user');
+            } else if (err.code === 11000) {
+              res.status(409).send({ message: 'Этот адрес электронной почты уже используется' });
+            } else {
+              res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+            }
+          });
       });
   } else {
     res.status(400).send({ message: 'Введите пароль длиной не менее 8 символов, состоящий из латинских букв, цифр и специальных символов' });
