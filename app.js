@@ -27,11 +27,11 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/webdev/projects/mesto/signin', login);
+app.post('/webdev/projects/mesto/signup', createUser);
 app.use(auth);
-app.use('/cards', cards);
-app.use('/users', users);
+app.use('/webdev/projects/mesto/cards', cards);
+app.use('/webdev/projects/mesto/users', users);
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
