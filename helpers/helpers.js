@@ -5,17 +5,18 @@ const { tempKey } = require('../configs/config.js');
 
 const { NODE_ENV, JWT_SECRET } = process.env; // На будущее
 const errors = {
-  byField: {
+  invalidInput: {
     name: 'Ошибка в поле Name.',
     email: 'Ошибка в поле Email.',
     about: 'Ошибка в поле About.',
     avatar: 'Проблема с аватаркой.',
     link: 'Проблема с изображением.',
   },
-  DocNotFound: {
+  docNotFound: {
     user: 'Такого пользователя нет',
     card: 'Такой карточки нет',
   },
+  emailInUse: 'Этот адрес электронной почты уже используется',
   badPassword: (pswlength) => `Введите пароль длиной не менее ${pswlength} зн., состоящий из латинских букв, цифр и специальных символов`,
   objectId: {
     user: 'Ошибка в идентификаторе пользователя',
@@ -25,9 +26,10 @@ const errors = {
 
 const passwordRegexp = /[\u0023-\u0126]+/;
 
-function joinErrorMessages(fieldErrorMap, actualError) {
+function joinErrorMessages(errorObject) {
+  const fieldErrorMap = errors.invalidInput;
   const expectedBadFields = Object.keys(fieldErrorMap);
-  const actualBadFields = Object.keys(actualError.errors);
+  const actualBadFields = Object.keys(errorObject.errors);
   const messageArray = [];
   let jointErrorMessage = null;
   if (expectedBadFields.some((field) => actualBadFields.includes(field))) {
@@ -77,11 +79,9 @@ function createDocHandler(promise, req, res, docType) {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
+        res.status(400).send({ message: joinErrorMessages(err) });
       } else if (err.code === 11000) {
         res.status(409).send({ message: 'Этот адрес электронной почты уже используется' });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
       }
     });
 }
@@ -110,12 +110,10 @@ function loginHandler(promise, req, res) {
     });
 }
 
-function getAllDocsHandler(promise, req, res) {
+function getAllDocsHandler(promise, req, res, next) {
   promise
     .then((respObj) => res.send(respObj))
-    .catch((err) => {
-      res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
-    });
+    .catch(next);
 }
 
 function getLikeDeleteHandler(promise, req, res, docType, userId) {
@@ -132,9 +130,7 @@ function getLikeDeleteHandler(promise, req, res, docType, userId) {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: `${errors.DocNotFound[docType]}` });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+        res.status(404).send({ message: `${errors.docNotFound[docType]}` });
       }
     });
 }
@@ -145,11 +141,9 @@ function updateHandler(promise, req, res) {
     .then((respObj) => res.send(respObj))
     .catch((err) => {
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: `${errors.DocNotFound.user}` });
+        res.status(404).send({ message: `${errors.docNotFound.user}` });
       } else if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+        res.status(400).send({ message: joinErrorMessages(err) });
       }
     });
 }
@@ -161,6 +155,7 @@ module.exports = {
   getLikeDeleteHandler,
   updateHandler,
   errors,
+  joinErrorMessages,
   isUserExistent,
   isObjectIdValid,
   passwordRegexp,

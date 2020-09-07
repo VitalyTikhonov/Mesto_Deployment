@@ -4,15 +4,18 @@ const User = require('../models/user');
 const {
   loginHandler,
   getAllDocsHandler,
-  getLikeDeleteHandler,
   updateHandler,
   errors,
+  joinErrorMessages,
   isObjectIdValid,
   passwordRegexp,
 } = require('../helpers/helpers');
-const DocNotFoundError = require('../errors/DocNotFound');
+const DocNotFoundError = require('../errors/DocNotFoundError');
+const BadNewPasswordError = require('../errors/BadNewPasswordError');
+const EmailInUseError = require('../errors/EmailInUseError');
+const InvalidInputError = require('../errors/InvalidInputError');
 
-function createUser(req, res) {
+function createUser(req, res, next) {
   const {
     name,
     about,
@@ -50,16 +53,14 @@ function createUser(req, res) {
           })
           .catch((err) => {
             if (err instanceof mongoose.Error.ValidationError) {
-              throw new DocNotFoundError('user');
+              next(new InvalidInputError(err));
             } else if (err.code === 11000) {
-              res.status(409).send({ message: 'Этот адрес электронной почты уже используется' });
-            } else {
-              res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
+              next(new EmailInUseError());
             }
           });
       });
   } else {
-    res.status(400).send({ message: 'Введите пароль длиной не менее 8 символов, состоящий из латинских букв, цифр и специальных символов' });
+    next(new BadNewPasswordError(PSWLENGTH));
   }
 }
 
@@ -75,22 +76,29 @@ function getAllUsers(req, res) {
   getAllDocsHandler(User.find({}), req, res);
 }
 
-function getSingleUser(req, res) {
+function getSingleUser(req, res, next) {
   try {
     const userId = req.params.id;
     isObjectIdValid(userId, 'user');
-    getLikeDeleteHandler(User.findById(userId), req, res, 'user');
+    User.findById(userId)
+      .orFail()
+      .then((respObj) => res.send(respObj))
+      .catch((err) => {
+        if (err instanceof mongoose.Error.DocumentNotFoundError) {
+          next(new DocNotFoundError('user'));
+        }
+      });
   } catch (err) {
     res.status(400).send({ message: `${errors.objectId[err.docType]}` });
   }
 }
 
-function updateProfile(req, res) {
+function updateProfile(req, res, next) {
   try {
     const userId = req.user._id;
     isObjectIdValid(userId, 'user');
     const { name, about } = req.body;
-    updateHandler(User.findByIdAndUpdate(
+    User.findByIdAndUpdate(
       userId,
       { name, about },
       {
@@ -98,7 +106,17 @@ function updateProfile(req, res) {
         runValidators: true,
         upsert: false, // !!!!!!!!!!!!!
       },
-    ), req, res);
+    )
+      .orFail()
+      .then((respObj) => res.send(respObj))
+      .catch((err) => {
+        if (err instanceof mongoose.Error.DocumentNotFoundError) {
+          throw new DocNotFoundError('user');
+        } else if (err instanceof mongoose.Error.ValidationError) {
+          res.status(400).send({ message: joinErrorMessages(err) });
+        }
+      })
+      .catch(next);
   } catch (err) {
     res.status(400).send({ message: `${errors.objectId[err.docType]}` });
   }

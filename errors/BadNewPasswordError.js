@@ -1,11 +1,11 @@
 const { errors } = require('../helpers/helpers');
 
-class BadPasswordError extends Error {
+class BadNewPasswordError extends Error {
   constructor(pswlength) {
     super();
-    this.statusCode = 404;
+    this.statusCode = 400;
     this.message = errors.badPassword(pswlength);
   }
 }
 
-module.exports = BadPasswordError;
+module.exports = BadNewPasswordError;
