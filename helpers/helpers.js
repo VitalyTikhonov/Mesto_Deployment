@@ -12,10 +12,11 @@ const errors = {
     avatar: 'Проблема с аватаркой.',
     link: 'Проблема с изображением.',
   },
-  byDocType: {
+  DocNotFound: {
     user: 'Такого пользователя нет',
     card: 'Такой карточки нет',
   },
+  badPassword: (pswlength) => `Введите пароль длиной не менее ${pswlength} зн., состоящий из латинских букв, цифр и специальных символов`,
   objectId: {
     user: 'Ошибка в идентификаторе пользователя',
     card: 'Ошибка в идентификаторе карточки',
@@ -131,7 +132,7 @@ function getLikeDeleteHandler(promise, req, res, docType, userId) {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: `${errors.byDocType[docType]}` });
+        res.status(404).send({ message: `${errors.DocNotFound[docType]}` });
       } else {
         res.status(500).send({ message: `На сервере произошла ошибка: ${err.message}` });
       }
@@ -144,7 +145,7 @@ function updateHandler(promise, req, res) {
     .then((respObj) => res.send(respObj))
     .catch((err) => {
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: `${errors.byDocType.user}` });
+        res.status(404).send({ message: `${errors.DocNotFound.user}` });
       } else if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: joinErrorMessages(errors.byField, err) });
       } else {

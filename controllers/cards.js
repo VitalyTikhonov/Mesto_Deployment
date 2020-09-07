@@ -25,7 +25,7 @@ function createCard(req, res) {
           throw new Error();
         }
       })
-      .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
+      .catch(() => res.status(404).send({ message: `${errors.DocNotFound.user}` }));
   } catch (err) {
     res.status(400).send({ message: `${errors.objectId[err.docType]}` });
   }
@@ -52,7 +52,7 @@ function deleteCard(req, res) {
           throw new Error();
         }
       })
-      .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
+      .catch(() => res.status(404).send({ message: `${errors.DocNotFound.user}` }));
   } catch (err) {
     res.status(400).send({ message: `${errors.objectId[err.docType]}` });
   }
@@ -76,7 +76,7 @@ function likeCard(req, res) {
           throw new Error();
         }
       })
-      .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
+      .catch(() => res.status(404).send({ message: `${errors.DocNotFound.user}` }));
   } catch (err) {
     res.status(400).send({ message: `${errors.objectId[err.docType]}` });
   }
@@ -100,7 +100,7 @@ function unlikeCard(req, res) {
           throw new Error();
         }
       })
-      .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
+      .catch(() => res.status(404).send({ message: `${errors.DocNotFound.user}` }));
   } catch (err) {
     res.status(400).send({ message: `${errors.objectId[err.docType]}` });
   }

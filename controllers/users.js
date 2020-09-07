@@ -20,7 +20,9 @@ function createUser(req, res) {
     email,
   } = req.body;
 
-  if (password && password.length >= 8 && password.match(passwordRegexp)) {
+  const PSWLENGTH = 8;
+
+  if (password && password.length >= PSWLENGTH && password.match(passwordRegexp)) {
     /* По аналогии с тем, как в тренажере предложено сделать для авторизации
     (User.findByCredentials), пытался сделать и здесь, чтобы проверять, не занята ли почта,
     прежде чем считать хеш пароля. Но не получилось разобраться с множеством ошибок, которые
