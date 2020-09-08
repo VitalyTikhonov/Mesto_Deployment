@@ -7,6 +7,7 @@ const DocNotFoundError = require('../errors/DocNotFoundError');
 const BadNewPasswordError = require('../errors/BadNewPasswordError');
 const EmailInUseError = require('../errors/EmailInUseError');
 const InvalidInputError = require('../errors/InvalidInputError');
+const MissingCredentialsError = require('../errors/MissingCredentialsError');
 
 const { tempKey } = require('../configs/config.js');
 
@@ -71,8 +72,15 @@ function createUser(req, res, next) {
 
 function login(req, res, next) {
   const { email, password } = req.body;
-  if (typeof email === 'string' && typeof password === 'string') {
-    return User.findByCredentials(email, password) // Зачем тут return?
+  if (typeof email === 'string'
+    && typeof password === 'string'
+    /* Чем обусловены следующие две проверки: насколько я сейчас понимаю, поле password все равно
+    присутсвует в запросе, даже если пароль не введен, – просто оно пустое, но это строка.
+    Если так, то ошибку выбросит модель, а там у нее будет негативный текст – "Неправильные…",
+    что неправильно. Если одно из полей пустое, нужно сообщать "Введите" или типа такого. */
+    && email.length !== 0
+    && password.length !== 0) {
+    return User.findByCredentials(email, password) // return!
       .then((user) => {
         const token = jwt.sign(
           { _id: user._id },
@@ -90,9 +98,16 @@ function login(req, res, next) {
         /* Как токен попадает в req.cookies.jwt при запросе логина, то есть еще до авторизации?.. */
         // console.log('req.cookies.jwt', req.cookies.jwt);
       })
-      .catch(next);
+      .catch((err) => {
+        if (err.statusCode === 401) {
+          /* См. примечание в файле ошибки. */
+          const returnedErr = err;
+          returnedErr.message = errors.invalidCredentials;
+          next(returnedErr);
+        }
+      });
   }
-  return res.status(400).send({ message: 'Введите логин и пароль' });
+  return next(new MissingCredentialsError());
 }
 
 function getAllUsers(req, res) {

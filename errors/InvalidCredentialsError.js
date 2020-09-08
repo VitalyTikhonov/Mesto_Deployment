@@ -1,11 +1,18 @@
-const { errors } = require('../helpers/helpers');
+// const { errors } = require('../helpers/helpers');
 
 class InvalidCredentialsError extends Error {
   constructor() {
     super();
     this.statusCode = 401;
-    this.message = errors.invalidCredentials;
+    // this.message = errors.invalidCredentials;
   }
 }
+
+/* К сожалению, не получается обращаться в коде этой ошибки к объекту errors. Экземпляр
+ошибки создается в файле модели, и errors оказывается там undefined. При этом инстансы всех
+остальных классов ошибок создаются в файле контроллеров, и с ними этой проблемы не возникает.
+Пока не удалось ни найти ответ о причинах в интернете, ни получить от наставника и товарищей –
+загадка. Все пути к файлам представляются верными. Рабочее предположение: что импорт и/или
+исполнение кода, объявленного в модуле с моделями, имеет какие-то особенности. */
 
 module.exports = InvalidCredentialsError;

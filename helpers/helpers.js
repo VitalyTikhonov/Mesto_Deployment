@@ -1,9 +1,6 @@
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { tempKey } = require('../configs/config.js');
 
-const { NODE_ENV, JWT_SECRET } = process.env; // На будущее
 const errors = {
   invalidInput: {
     name: 'Ошибка в поле Name.',
@@ -13,6 +10,7 @@ const errors = {
     link: 'Проблема с изображением.',
   },
   invalidCredentials: 'Неправильные почта или пароль',
+  missingCredentials: 'Введите логин и пароль',
   docNotFound: {
     user: 'Такого пользователя нет',
     card: 'Такой карточки нет',
@@ -87,30 +85,6 @@ function createDocHandler(promise, req, res, docType) {
     });
 }
 
-function loginHandler(promise, req, res) {
-  promise // findUserByCredentials
-    .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : tempKey,
-        { expiresIn: '7d' },
-      );
-      res
-        .cookie('jwt', token, {
-          maxAge: 3600000 * 24 * 7,
-          httpOnly: true,
-          sameSite: true,
-        })
-        .end();
-
-      /* Как токен попадает в req.cookies.jwt при запросе логина, то есть еще до авторизации?.. */
-      // console.log('req.cookies.jwt', req.cookies.jwt);
-    })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
-}
-
 function getAllDocsHandler(promise, req, res, next) {
   promise
     .then((respObj) => res.send(respObj))
@@ -151,7 +125,6 @@ function updateHandler(promise, req, res) {
 
 module.exports = {
   createDocHandler,
-  loginHandler,
   getAllDocsHandler,
   getLikeDeleteHandler,
   updateHandler,
