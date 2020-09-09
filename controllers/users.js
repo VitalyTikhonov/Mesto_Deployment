@@ -8,6 +8,7 @@ const NoDocsError = require('../errors/NoDocsError');
 const BadNewPasswordError = require('../errors/BadNewPasswordError');
 const EmailInUseError = require('../errors/EmailInUseError');
 const InvalidInputError = require('../errors/InvalidInputError');
+const InvalidIdentityError = require('../errors/InvalidIdentityError');
 const MissingCredentialsError = require('../errors/MissingCredentialsError');
 
 const { tempKey } = require('../configs/config.js');
@@ -109,13 +110,9 @@ function getSingleUser(req, res, next) {
     const userId = req.params.id;
     isObjectIdValid(userId, 'user');
     User.findById(userId)
-      .orFail()
+      .orFail(new DocNotFoundError('user'))
       .then((respObj) => res.send(respObj))
-      .catch((err) => {
-        if (err instanceof mongoose.Error.DocumentNotFoundError) {
-          next(new DocNotFoundError('user'));
-        }
-      });
+      .catch(next);
   } catch (err) {
     next(err);
   }
@@ -135,14 +132,13 @@ function updateProfile(req, res, next) {
         upsert: false, // !!!!!!!!!!!!!
       },
     )
-      .orFail()
+      .orFail(new InvalidIdentityError())
       .then((respObj) => res.send(respObj))
       .catch((err) => {
-        if (err instanceof mongoose.Error.DocumentNotFoundError) {
-          next(new DocNotFoundError('user'));
-        } else if (err instanceof mongoose.Error.ValidationError) {
-          next(new InvalidInputError(err));
+        if (err instanceof mongoose.Error.ValidationError) {
+          return next(new InvalidInputError(err));
         }
+        return next(err);
       });
   } catch (err) {
     next(err);
@@ -163,14 +159,13 @@ function updateAvatar(req, res, next) {
         upsert: false, // !!!!!!!!!!!!!
       },
     )
-      .orFail()
+      .orFail(new InvalidIdentityError())
       .then((respObj) => res.send(respObj))
       .catch((err) => {
-        if (err instanceof mongoose.Error.DocumentNotFoundError) {
-          next(new DocNotFoundError('user'));
-        } else if (err instanceof mongoose.Error.ValidationError) {
-          next(new InvalidInputError(err));
+        if (err instanceof mongoose.Error.ValidationError) {
+          return next(new InvalidInputError(err));
         }
+        return next(err);
       });
   } catch (err) {
     next(err);
