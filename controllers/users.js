@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const DocNotFoundError = require('../errors/DocNotFoundError');
+const NoDocsError = require('../errors/NoDocsError');
 const BadNewPasswordError = require('../errors/BadNewPasswordError');
 const EmailInUseError = require('../errors/EmailInUseError');
 const InvalidInputError = require('../errors/InvalidInputError');
@@ -98,6 +99,7 @@ function login(req, res, next) {
 
 function getAllUsers(req, res, next) {
   User.find({})
+    .orFail(new NoDocsError('user'))
     .then((respObj) => res.send(respObj))
     .catch(next);
 }
