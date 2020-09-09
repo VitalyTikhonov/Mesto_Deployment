@@ -1,4 +1,4 @@
-const { errors } = require('../helpers/helpers');
+const { errors } = require('../helpers/errorMessages');
 
 class MissingCredentialsError extends Error {
   constructor() {

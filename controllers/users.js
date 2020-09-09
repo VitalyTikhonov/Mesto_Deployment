@@ -12,14 +12,7 @@ const MissingCredentialsError = require('../errors/MissingCredentialsError');
 const { tempKey } = require('../configs/config.js');
 
 const { NODE_ENV, JWT_SECRET } = process.env; // На будущее
-const {
-  getAllDocsHandler,
-  updateHandler,
-  errors,
-  joinErrorMessages,
-  isObjectIdValid,
-  passwordRegexp,
-} = require('../helpers/helpers');
+const { isObjectIdValid, passwordRegexp } = require('../helpers/helpers');
 
 function createUser(req, res, next) {
   const {
@@ -98,20 +91,15 @@ function login(req, res, next) {
         /* Как токен попадает в req.cookies.jwt при запросе логина, то есть еще до авторизации?.. */
         // console.log('req.cookies.jwt', req.cookies.jwt);
       })
-      .catch((err) => {
-        if (err.statusCode === 401) {
-          /* См. примечание в файле ошибки. */
-          const returnedErr = err;
-          returnedErr.message = errors.invalidCredentials;
-          next(returnedErr);
-        }
-      });
+      .catch(next);
   }
   return next(new MissingCredentialsError());
 }
 
-function getAllUsers(req, res) {
-  getAllDocsHandler(User.find({}), req, res);
+function getAllUsers(req, res, next) {
+  User.find({})
+    .then((respObj) => res.send(respObj))
+    .catch(next);
 }
 
 function getSingleUser(req, res, next) {
@@ -127,7 +115,7 @@ function getSingleUser(req, res, next) {
         }
       });
   } catch (err) {
-    res.status(400).send({ message: `${errors.objectId[err.docType]}` });
+    next(err);
   }
 }
 
@@ -149,23 +137,22 @@ function updateProfile(req, res, next) {
       .then((respObj) => res.send(respObj))
       .catch((err) => {
         if (err instanceof mongoose.Error.DocumentNotFoundError) {
-          throw new DocNotFoundError('user');
+          next(new DocNotFoundError('user'));
         } else if (err instanceof mongoose.Error.ValidationError) {
-          res.status(400).send({ message: joinErrorMessages(err) });
+          next(new InvalidInputError(err));
         }
-      })
-      .catch(next);
+      });
   } catch (err) {
-    res.status(400).send({ message: `${errors.objectId[err.docType]}` });
+    next(err);
   }
 }
 
-function updateAvatar(req, res) {
+function updateAvatar(req, res, next) {
   try {
     const userId = req.user._id;
     isObjectIdValid(userId, 'user');
     const { avatar } = req.body;
-    updateHandler(User.findByIdAndUpdate(
+    User.findByIdAndUpdate(
       userId,
       { avatar },
       {
@@ -173,9 +160,18 @@ function updateAvatar(req, res) {
         runValidators: true,
         upsert: false, // !!!!!!!!!!!!!
       },
-    ), req, res);
+    )
+      .orFail()
+      .then((respObj) => res.send(respObj))
+      .catch((err) => {
+        if (err instanceof mongoose.Error.DocumentNotFoundError) {
+          next(new DocNotFoundError('user'));
+        } else if (err instanceof mongoose.Error.ValidationError) {
+          next(new InvalidInputError(err));
+        }
+      });
   } catch (err) {
-    res.status(400).send({ message: `${errors.objectId[err.docType]}` });
+    next(err);
   }
 }
 
