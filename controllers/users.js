@@ -8,13 +8,13 @@ const NoDocsError = require('../errors/NoDocsError');
 const BadNewPasswordError = require('../errors/BadNewPasswordError');
 const EmailInUseError = require('../errors/EmailInUseError');
 const InvalidInputError = require('../errors/InvalidInputError');
-const InvalidIdentityError = require('../errors/InvalidIdentityError');
+const UnknownRequestorError = require('../errors/UnknownRequestorError');
 const MissingCredentialsError = require('../errors/MissingCredentialsError');
 
 const { tempKey } = require('../configs/config.js');
 
 const { NODE_ENV, JWT_SECRET } = process.env; // На будущее
-const { isObjectIdValid, passwordRegexp } = require('../helpers/helpers');
+const { passwordRegexp } = require('../helpers/helpers');
 
 function createUser(req, res, next) {
   const {
@@ -77,13 +77,14 @@ function login(req, res, next) {
     && password.length !== 0) {
     return User.findByCredentials(email, password) // return!
       .then((user) => {
-        const token = jwt.sign(
+        const token = jwt.sign( // делаем токен
           { _id: user._id },
+          // { _id: '5f59fd0c710b20e7857e392' }, // невалидный айди для тестирования
           NODE_ENV === 'production' ? JWT_SECRET : tempKey,
           { expiresIn: '7d' },
         );
         res
-          .cookie('jwt', token, {
+          .cookie('jwt', token, { // отправляем токен
             maxAge: 3600000 * 24 * 7,
             httpOnly: true,
             sameSite: true,
@@ -108,7 +109,6 @@ function getAllUsers(req, res, next) {
 function getSingleUser(req, res, next) {
   try {
     const userId = req.params.id;
-    isObjectIdValid(userId, 'user');
     User.findById(userId)
       .orFail(new DocNotFoundError('user'))
       .then((respObj) => res.send(respObj))
@@ -121,7 +121,6 @@ function getSingleUser(req, res, next) {
 function updateProfile(req, res, next) {
   try {
     const userId = req.user._id;
-    isObjectIdValid(userId, 'user');
     const { name, about } = req.body;
     User.findByIdAndUpdate(
       userId,
@@ -132,7 +131,7 @@ function updateProfile(req, res, next) {
         upsert: false, // !!!!!!!!!!!!!
       },
     )
-      .orFail(new InvalidIdentityError())
+      .orFail(new UnknownRequestorError())
       .then((respObj) => res.send(respObj))
       .catch((err) => {
         if (err instanceof mongoose.Error.ValidationError) {
@@ -148,7 +147,6 @@ function updateProfile(req, res, next) {
 function updateAvatar(req, res, next) {
   try {
     const userId = req.user._id;
-    isObjectIdValid(userId, 'user');
     const { avatar } = req.body;
     User.findByIdAndUpdate(
       userId,
@@ -159,7 +157,7 @@ function updateAvatar(req, res, next) {
         upsert: false, // !!!!!!!!!!!!!
       },
     )
-      .orFail(new InvalidIdentityError())
+      .orFail(new UnknownRequestorError())
       .then((respObj) => res.send(respObj))
       .catch((err) => {
         if (err instanceof mongoose.Error.ValidationError) {

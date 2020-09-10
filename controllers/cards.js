@@ -1,14 +1,10 @@
 const mongoose = require('mongoose');
 const Card = require('../models/card');
-const {
-  isUserExistent,
-  isObjectIdValid,
-} = require('../helpers/helpers');
+const { isObjectIdValid } = require('../helpers/helpers');
 
 const NoDocsError = require('../errors/NoDocsError');
 const DocNotFoundError = require('../errors/DocNotFoundError');
 const InvalidInputError = require('../errors/InvalidInputError');
-const InvalidIdentityError = require('../errors/InvalidIdentityError');
 const NoRightsError = require('../errors/NoRightsError');
 
 function getAllCards(req, res, next) {
@@ -18,14 +14,10 @@ function getAllCards(req, res, next) {
     .catch(next);
 }
 
-async function createCard(req, res, next) {
+function createCard(req, res, next) {
   try {
     const owner = req.user._id; // не менять owner на user!
-    isObjectIdValid(owner, 'user');
     const { name, link } = req.body;
-    if (!await isUserExistent(owner)) {
-      throw new InvalidIdentityError();
-    }
     Card.create({ name, link, owner })
       .then((respObj) => res.send(respObj))
       .catch((err) => {
@@ -38,15 +30,11 @@ async function createCard(req, res, next) {
   }
 }
 
-async function deleteCard(req, res, next) {
+function deleteCard(req, res, next) {
   try {
     const userId = req.user._id;
-    isObjectIdValid(userId, 'user');
     const { cardId } = req.params;
     isObjectIdValid(cardId, 'card');
-    if (!await isUserExistent(userId)) {
-      throw new InvalidIdentityError();
-    }
     Card.findById(cardId)
       .orFail(new DocNotFoundError('card'))
       .then((respObj) => {
@@ -63,15 +51,11 @@ async function deleteCard(req, res, next) {
   }
 }
 
-async function toggleCardLike(req, res, next) {
+function toggleCardLike(req, res, next) {
   try {
     const userId = req.user._id;
-    isObjectIdValid(userId, 'user');
     const { cardId } = req.params;
     isObjectIdValid(cardId, 'card');
-    if (!await isUserExistent(userId)) {
-      throw new InvalidIdentityError();
-    }
     let action;
     switch (req.method) {
       case 'PUT':

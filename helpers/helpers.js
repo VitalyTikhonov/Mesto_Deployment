@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { errors } = require('./errorMessages');
-const User = require('../models/user');
+// const User = require('../models/user');
 const InvalidObjectIdError = require('../errors/InvalidObjectIdError');
 
 const passwordRegexp = /[\u0023-\u0126]+/;
@@ -22,9 +22,9 @@ function joinErrorMessages(errorObject) {
   return jointErrorMessage;
 }
 
-function isUserExistent(id) {
-  return User.exists({ _id: id });
-}
+// function isUserExistent(id) {
+//   return User.exists({ _id: id });
+// }
 
 function isObjectIdValid(id, docType) {
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -34,7 +34,7 @@ function isObjectIdValid(id, docType) {
 
 module.exports = {
   joinErrorMessages,
-  isUserExistent,
+  // isUserExistent,
   isObjectIdValid,
   passwordRegexp,
 };
