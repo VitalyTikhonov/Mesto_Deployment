@@ -108,7 +108,7 @@ function getAllUsers(req, res, next) {
 
 function getSingleUser(req, res, next) {
   try {
-    const userId = req.params.id;
+    const userId = req.params.id; // интересующего пользователя (joi-objectid)
     User.findById(userId)
       .orFail(new DocNotFoundError('user'))
       .then((respObj) => res.send(respObj))
@@ -120,7 +120,7 @@ function getSingleUser(req, res, next) {
 
 function updateProfile(req, res, next) {
   try {
-    const userId = req.user._id;
+    const userId = req.user._id; // свой (проверяется в auth)
     const { name, about } = req.body;
     User.findByIdAndUpdate(
       userId,
@@ -146,7 +146,7 @@ function updateProfile(req, res, next) {
 
 function updateAvatar(req, res, next) {
   try {
-    const userId = req.user._id;
+    const userId = req.user._id; // свой (проверяется в auth)
     const { avatar } = req.body;
     User.findByIdAndUpdate(
       userId,

@@ -16,7 +16,7 @@ function getAllCards(req, res, next) {
 
 function createCard(req, res, next) {
   try {
-    const owner = req.user._id; // не менять owner на user!
+    const owner = req.user._id; // не менять owner на user! свой (проверяется в auth)
     const { name, link } = req.body;
     Card.create({ name, link, owner })
       .then((respObj) => res.send(respObj))
@@ -32,8 +32,8 @@ function createCard(req, res, next) {
 
 function deleteCard(req, res, next) {
   try {
-    const userId = req.user._id;
-    const { cardId } = req.params;
+    const userId = req.user._id; // свой (проверяется в auth)
+    const { cardId } = req.params; // проверяется joi-objectid
     isObjectIdValid(cardId, 'card');
     Card.findById(cardId)
       .orFail(new DocNotFoundError('card'))
@@ -53,8 +53,8 @@ function deleteCard(req, res, next) {
 
 function toggleCardLike(req, res, next) {
   try {
-    const userId = req.user._id;
-    const { cardId } = req.params;
+    const userId = req.user._id; // свой (проверяется в auth)
+    const { cardId } = req.params; // проверяется joi-objectid
     isObjectIdValid(cardId, 'card');
     let action;
     switch (req.method) {

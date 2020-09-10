@@ -4,6 +4,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
 const cards = require('./routes/cards.js');
 const users = require('./routes/users.js');
 const { createUser, login } = require('./controllers/users.js');
@@ -35,13 +36,15 @@ app.use(auth);
 app.use(`${BASE_PATH}/cards`, cards);
 app.use(`${BASE_PATH}/users`, users);
 app.use((req, res, next) => next(new NotFoundError()));
+app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({
     message: statusCode === 500
-      ? `На сервере произошла ошибка: ${message}. Искренне ваш, Централизованный обработчик ошибок`
-      : `${message}. Искренне ваш, Централизованный обработчик ошибок`,
+      ? `На сервере произошла ошибка: ${message}`
+      : message,
   });
+  // console.log('err\n', err);
   next();
 });
 app.listen(PORT, () => {
