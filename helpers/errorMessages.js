@@ -10,6 +10,7 @@ module.exports.errors = {
   missingCredentials: 'Введите логин и пароль',
   notAuthorized: 'Необходима авторизация',
   noRights: 'Нельзя удалить чужую карточку',
+  notFound: 'Запрашиваемый ресурс не найден',
   docNotFound: {
     user: 'Такого пользователя нет',
     card: 'Такой карточки нет',
