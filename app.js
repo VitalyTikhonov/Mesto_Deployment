@@ -4,11 +4,11 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { errors } = require('celebrate');
 const cards = require('./routes/cards.js');
 const users = require('./routes/users.js');
 const { createUser, login } = require('./controllers/users.js');
 const auth = require('./middleware/auth');
+const celebValidateRequest = require('./middleware/requestValidation');
 const NotFoundError = require('./errors/NotFoundError');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -36,7 +36,7 @@ app.use(auth);
 app.use(`${BASE_PATH}/cards`, cards);
 app.use(`${BASE_PATH}/users`, users);
 app.use((req, res, next) => next(new NotFoundError()));
-app.use(errors());
+app.use(celebValidateRequest);
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({

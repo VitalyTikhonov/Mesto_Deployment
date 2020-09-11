@@ -17,37 +17,49 @@ router.get('/', getAllUsers);
 
 router.get(
   '/:id',
-  celebrate({
-    params: Joi.object().keys({
-      id: Joi.objectId(),
-    }),
-  }),
+  celebrate(
+    {
+      params: Joi.object().options({ abortEarly: false }).keys({
+        id: Joi.objectId(),
+      }),
+    },
+    { warnings: true }, // просто чтобы позиционно распознавался следующий аргумент
+    { mode: 'full' },
+  ),
   getSingleUser,
 );
 
 router.patch(
   '/me',
-  celebrate({
-    body: Joi.object().keys({
-      name: Joi.string().required().min(2).max(30),
-      about: Joi.string().required().min(2).max(30),
-    }),
-  }),
+  celebrate(
+    {
+      body: Joi.object().options({ abortEarly: false }).keys({
+        name: Joi.string().required().min(2).max(30),
+        about: Joi.string().required().min(2).max(30),
+      }),
+    },
+    { warnings: true }, // просто чтобы позиционно распознавался следующий аргумент
+    { mode: 'full' },
+  ),
   updateProfile,
 );
 
 router.patch(
   '/me/avatar',
-  celebrate({
-    body: Joi.object().keys({
-      avatar: Joi.string().custom((value) => {
-        if (!validator.isURL(value)) {
-          throw new Error(errors.invalidInput.avatar);
-        }
-        return value;
+  celebrate(
+    {
+      body: Joi.object().options({ abortEarly: false }).keys({
+        avatar: Joi.string().custom((value) => {
+          if (!validator.isURL(value)) {
+            throw new Error(errors.invalidInput.avatar);
+          }
+          return value;
+        }),
       }),
-    }),
-  }),
+    },
+    { warnings: true }, // просто чтобы позиционно распознавался следующий аргумент
+    { mode: 'full' },
+  ),
   updateAvatar,
 );
 
