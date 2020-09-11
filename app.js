@@ -53,7 +53,6 @@ app.use((err, req, res, next) => {
       ? `На сервере произошла ошибка: ${message}`
       : message,
   });
-  // console.log('err\n', err);
   next();
 });
 app.listen(PORT, () => {
