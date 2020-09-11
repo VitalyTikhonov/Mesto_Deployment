@@ -4,6 +4,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { requestLogger, errorLogger } = require('./middleware/logger');
 const signin = require('./routes/signin');
 const signup = require('./routes/signup');
 const cards = require('./routes/cards');
@@ -31,12 +32,14 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(bodyParser.json());
 app.use(cookieParser());
+app.use(requestLogger);
 app.use(`${BASE_PATH}/signin`, signin);
 app.use(`${BASE_PATH}/signup`, signup);
 app.use(auth);
 app.use(`${BASE_PATH}/cards`, cards);
 app.use(`${BASE_PATH}/users`, users);
 app.use((req, res, next) => next(new NotFoundError()));
+app.use(errorLogger);
 app.use(celebValidateRequest);
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
