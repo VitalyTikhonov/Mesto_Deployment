@@ -4,7 +4,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { errors } = require('celebrate');
+const { isCelebrateError } = require('celebrate');
 const cards = require('./routes/cards.js');
 const users = require('./routes/users.js');
 const { createUser, login } = require('./controllers/users.js');
@@ -36,7 +36,19 @@ app.use(auth);
 app.use(`${BASE_PATH}/cards`, cards);
 app.use(`${BASE_PATH}/users`, users);
 app.use((req, res, next) => next(new NotFoundError()));
-app.use(errors());
+// app.use(errors());
+app.use((err, req, res, next) => {
+  if (!isCelebrateError(err)) {
+    return next(err);
+  }
+  const returnedErr = new Error();
+  returnedErr.statusCode = 400;
+  const celebInfo = Object.fromEntries(err.details).body.details;
+  const celebFields = celebInfo.map((error) => error.context.label).join(', ');
+  const celebMessages = celebInfo.map((error) => error.message).join('. ');
+  returnedErr.message = `Следующие поля заполнены неверно: ${celebFields} (${celebMessages})`;
+  return next(returnedErr);
+});
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({

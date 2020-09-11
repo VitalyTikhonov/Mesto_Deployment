@@ -18,7 +18,7 @@ router.get('/', getAllUsers);
 router.get(
   '/:id',
   celebrate({
-    params: Joi.object().keys({
+    params: Joi.object().options({ abortEarly: false }).keys({
       id: Joi.objectId(),
     }),
   }),
@@ -28,7 +28,7 @@ router.get(
 router.patch(
   '/me',
   celebrate({
-    body: Joi.object().keys({
+    body: Joi.object().options({ abortEarly: false }).keys({
       name: Joi.string().required().min(2).max(30),
       about: Joi.string().required().min(2).max(30),
     }),
@@ -39,7 +39,7 @@ router.patch(
 router.patch(
   '/me/avatar',
   celebrate({
-    body: Joi.object().keys({
+    body: Joi.object().options({ abortEarly: false }).keys({
       avatar: Joi.string().custom((value) => {
         if (!validator.isURL(value)) {
           throw new Error(errors.invalidInput.avatar);
