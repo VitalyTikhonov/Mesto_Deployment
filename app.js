@@ -13,7 +13,6 @@ const auth = require('./middleware/auth');
 const celebValidateRequest = require('./middleware/requestValidators');
 const NotFoundError = require('./errors/NotFoundError');
 
-console.log('HELLO', process.env.HELLO);
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   useCreateIndex: true,
