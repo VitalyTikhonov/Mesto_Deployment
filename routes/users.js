@@ -20,7 +20,7 @@ router.get(
   celebrate(
     {
       params: Joi.object().options({ abortEarly: false }).keys({
-        id: Joi.objectId(),
+        id: Joi.objectId().required(),
       }),
     },
     { warnings: true }, // просто чтобы позиционно распознавался следующий аргумент
@@ -49,7 +49,7 @@ router.patch(
   celebrate(
     {
       body: Joi.object().options({ abortEarly: false }).keys({
-        avatar: Joi.string().custom((value) => {
+        avatar: Joi.string().required().custom((value) => {
           if (!validator.isURL(value)) {
             throw new Error(errors.invalidInput.avatar);
           }

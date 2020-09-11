@@ -4,11 +4,12 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const cards = require('./routes/cards.js');
-const users = require('./routes/users.js');
-const { createUser, login } = require('./controllers/users.js');
+const signin = require('./routes/signin');
+const signup = require('./routes/signup');
+const cards = require('./routes/cards');
+const users = require('./routes/users');
 const auth = require('./middleware/auth');
-const celebValidateRequest = require('./middleware/requestValidation');
+const celebValidateRequest = require('./middleware/requestValidators');
 const NotFoundError = require('./errors/NotFoundError');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -30,8 +31,8 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.post(`${BASE_PATH}/signin`, login);
-app.post(`${BASE_PATH}/signup`, createUser);
+app.use(`${BASE_PATH}/signin`, signin);
+app.use(`${BASE_PATH}/signup`, signup);
 app.use(auth);
 app.use(`${BASE_PATH}/cards`, cards);
 app.use(`${BASE_PATH}/users`, users);

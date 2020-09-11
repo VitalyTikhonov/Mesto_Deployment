@@ -20,7 +20,7 @@ router.post(
     {
       body: Joi.object().options({ abortEarly: false }).keys({
         name: Joi.string().required().min(2).max(30),
-        link: Joi.string().custom((value) => {
+        link: Joi.string().required().custom((value) => {
           if (!validator.isURL(value)) {
             throw new Error(errors.invalidInput.link);
           }
@@ -39,7 +39,7 @@ router.delete(
   celebrate(
     {
       params: Joi.object().options({ abortEarly: false }).keys({
-        cardId: Joi.objectId(),
+        cardId: Joi.objectId().required(),
       }),
     },
     { warnings: true }, // просто чтобы позиционно распознавался следующий аргумент
