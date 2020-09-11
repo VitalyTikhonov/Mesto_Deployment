@@ -33,6 +33,11 @@ app.use(limiter);
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(requestLogger);
+app.get(`${BASE_PATH}/crash-test`, () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 app.use(`${BASE_PATH}/signin`, signin);
 app.use(`${BASE_PATH}/signup`, signup);
 app.use(auth);
