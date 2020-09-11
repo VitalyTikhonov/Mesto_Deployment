@@ -11,9 +11,7 @@ const InvalidInputError = require('../errors/InvalidInputError');
 const UnknownRequestorError = require('../errors/UnknownRequestorError');
 const MissingCredentialsError = require('../errors/MissingCredentialsError');
 
-const { tempKey } = require('../configs/config.js');
-
-const { NODE_ENV, JWT_SECRET } = process.env; // На будущее
+const { NODE_ENV, JWT_SECRET } = process.env;
 const { passwordRegexp } = require('../helpers/helpers');
 
 function createUser(req, res, next) {
@@ -80,7 +78,7 @@ function login(req, res, next) {
         const token = jwt.sign( // делаем токен
           { _id: user._id },
           // { _id: '5f59fd0c710b20e7857e392' }, // невалидный айди для тестирования
-          NODE_ENV === 'production' ? JWT_SECRET : tempKey,
+          NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
           { expiresIn: '7d' },
         );
         res
