@@ -1,108 +1,81 @@
+const mongoose = require('mongoose');
 const Card = require('../models/card');
-const {
-  createDocHandler,
-  getAllDocsHandler,
-  getLikeDeleteHandler,
-  errors,
-  isUserExistent,
-  isObjectIdValid,
-} = require('../helpers/helpers');
+const { isObjectIdValid } = require('../helpers/helpers');
 
-function getAllCards(req, res) {
-  getAllDocsHandler(Card.find({}), req, res);
+const NoDocsError = require('../errors/NoDocsError');
+const DocNotFoundError = require('../errors/DocNotFoundError');
+const InvalidInputError = require('../errors/InvalidInputError');
+const NoRightsError = require('../errors/NoRightsError');
+
+function getAllCards(req, res, next) {
+  Card.find({})
+    .orFail(new NoDocsError('card'))
+    .then((respObj) => res.send(respObj))
+    .catch(next);
 }
 
-function createCard(req, res) {
+function createCard(req, res, next) {
   try {
-    const owner = req.user._id; // не менять owner на user!
-    isObjectIdValid(owner, 'user');
+    const owner = req.user._id; // не менять owner на user! свой (проверяется в auth)
     const { name, link } = req.body;
-    isUserExistent(owner)
-      .then((checkResult) => {
-        if (checkResult) {
-          createDocHandler(Card.create({ name, link, owner }), req, res, 'card');
-        } else {
-          throw new Error();
+    Card.create({ name, link, owner })
+      .then((respObj) => res.send(respObj))
+      .catch((err) => {
+        if (err instanceof mongoose.Error.ValidationError) {
+          next(new InvalidInputError(err));
         }
-      })
-      .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
+      });
   } catch (err) {
-    res.status(400).send({ message: `${errors.objectId[err.docType]}` });
+    next(err);
   }
 }
 
-function deleteCard(req, res) {
+function deleteCard(req, res, next) {
   try {
-    const userId = req.user._id;
-    isObjectIdValid(userId, 'user');
-    const { cardId } = req.params;
+    const userId = req.user._id; // свой (проверяется в auth)
+    const { cardId } = req.params; // проверяется joi-objectid
     isObjectIdValid(cardId, 'card');
-    isUserExistent(userId)
-      .then((checkResult) => {
-        if (checkResult) {
-          getLikeDeleteHandler(Card.findById(cardId), req, res, 'card', userId);
-
-          /* Так работало, но зачем */
-          // getLikeDeleteHandler(Card.findById({ _id: cardId }), req, res, 'card', userId);
-
-          /* Так работало, но не давало проверить владельца для дифференциации ошибок */
-          // getLikeDeleteHandler(Card.findO
-          // neAndRemove({ _id: cardId, owner: userId }), req, res, 'card');
+    Card.findById(cardId)
+      .orFail(new DocNotFoundError('card'))
+      .then((respObj) => {
+        if (respObj.owner.equals(userId)) {
+          respObj.deleteOne()
+            .then((deletedObj) => res.send(deletedObj));
         } else {
-          throw new Error();
+          next(new NoRightsError());
         }
       })
-      .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
+      .catch(next);
   } catch (err) {
-    res.status(400).send({ message: `${errors.objectId[err.docType]}` });
+    next(err);
   }
 }
 
-function likeCard(req, res) {
+function toggleCardLike(req, res, next) {
   try {
-    const userId = req.user._id;
-    isObjectIdValid(userId, 'user');
-    const { cardId } = req.params;
+    const userId = req.user._id; // свой (проверяется в auth)
+    const { cardId } = req.params; // проверяется joi-objectid
     isObjectIdValid(cardId, 'card');
-    isUserExistent(userId)
-      .then((checkResult) => {
-        if (checkResult) {
-          getLikeDeleteHandler(Card.findByIdAndUpdate(
-            cardId,
-            { $addToSet: { likes: userId } },
-            { new: true },
-          ), req, res, 'card');
-        } else {
-          throw new Error();
-        }
-      })
-      .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
+    let action;
+    switch (req.method) {
+      case 'PUT':
+        action = '$addToSet';
+        break;
+      case 'DELETE':
+        action = '$pull';
+        break;
+      default:
+    }
+    Card.findByIdAndUpdate(
+      cardId,
+      { [action]: { likes: userId } },
+      { new: true },
+    )
+      .orFail(new DocNotFoundError('card'))
+      .then((respObj) => res.send(respObj))
+      .catch(next);
   } catch (err) {
-    res.status(400).send({ message: `${errors.objectId[err.docType]}` });
-  }
-}
-
-function unlikeCard(req, res) {
-  try {
-    const userId = req.user._id;
-    isObjectIdValid(userId, 'user');
-    const { cardId } = req.params;
-    isObjectIdValid(cardId, 'card');
-    isUserExistent(userId)
-      .then((checkResult) => {
-        if (checkResult) {
-          getLikeDeleteHandler(Card.findByIdAndUpdate(
-            cardId,
-            { $pull: { likes: userId } },
-            { new: true },
-          ), req, res, 'card');
-        } else {
-          throw new Error();
-        }
-      })
-      .catch(() => res.status(404).send({ message: `${errors.byDocType.user}` }));
-  } catch (err) {
-    res.status(400).send({ message: `${errors.objectId[err.docType]}` });
+    next(err);
   }
 }
 
@@ -110,6 +83,5 @@ module.exports = {
   getAllCards,
   createCard,
   deleteCard,
-  likeCard,
-  unlikeCard,
+  toggleCardLike,
 };

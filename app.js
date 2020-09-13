@@ -4,11 +4,14 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const cards = require('./routes/cards.js');
-const users = require('./routes/users.js');
-const products = require('./routes/products.js');
-const { createUser, login } = require('./controllers/users.js');
+const { requestLogger, errorLogger } = require('./middleware/logger');
+const signin = require('./routes/signin');
+const signup = require('./routes/signup');
+const cards = require('./routes/cards');
+const users = require('./routes/users');
 const auth = require('./middleware/auth');
+const celebValidateRequest = require('./middleware/requestValidators');
+const NotFoundError = require('./errors/NotFoundError');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
@@ -19,6 +22,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 const app = express();
 
 const { PORT = 3000 } = process.env;
+const BASE_PATH = '/webdev/projects/mesto';
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -28,18 +32,29 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.post('/signin', login);
-app.post('/signup', createUser);
-app.use(auth);
-app.use('/cards', cards);
-app.use('/users', users);
-app.use('/products', products);
-app.use((req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+app.use(requestLogger);
+app.get(`${BASE_PATH}/crash-test`, () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
 });
-// app.use((err, req, res, next) => {
-//     res.status(500).send({ message: 'На сервере произошла ошибка' });
-// });
+app.use(`${BASE_PATH}/signin`, signin);
+app.use(`${BASE_PATH}/signup`, signup);
+app.use(auth);
+app.use(`${BASE_PATH}/cards`, cards);
+app.use(`${BASE_PATH}/users`, users);
+app.use((req, res, next) => next(new NotFoundError()));
+app.use(errorLogger);
+app.use(celebValidateRequest);
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({
+    message: statusCode === 500
+      ? `На сервере произошла ошибка: ${message}`
+      : message,
+  });
+  next();
+});
 app.listen(PORT, () => {
   console.log(`Сервер запущен, порт: ${PORT}.`);
 });

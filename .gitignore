@@ -14,8 +14,9 @@ node_modules
 .idea
 .vscode
 
-V_Tikhonov_Course_05_Project_14.*
+V_Tikhonov_Course_05_Project_15.*
 # DevNotes.txt
+DevNotes_Security.txt
 .env
 PostmanRequests
 nginx_config_backup
