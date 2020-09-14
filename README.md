@@ -12,6 +12,7 @@
 - https://api.vitaliytikhonov.ru/webdev/projects/mesto
 - http://130.193.56.51/
 - https://130.193.56.51/
+
 Дополнительно по адресу http://vitaliytikhonov.ru/webdev/projects/mesto/ размещен фронтенд проекта, созданный на предыдущих этапах курса. 
 ## Функционал проекта
 Сервер (api.vitaliytikhonov.ru/webdev/projects/mesto):
