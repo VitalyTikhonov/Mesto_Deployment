@@ -21,8 +21,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 const app = express();
 
-const { PORT = 3000 } = process.env;
-const BASE_PATH = '/webdev/projects/mesto';
+const { PORT = 3000, BASE_PATH = '/' } = process.env;
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
