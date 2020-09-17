@@ -1,5 +1,6 @@
 # Mesto_Deployment v1.0.0
-В рамках данного учебного задания реазиловано:
+Учебное задание по разработке серверного приложения на Express.js, подключению его к базе данных MongoDB и развертыванию на облачном сервере с привязкой к доменному имени.
+В рамках задания реазиловано:
 - централизованная обработка ошибок;
 - валидация запросов к серверу до обработки;
 - логгирование ошибок;
@@ -10,8 +11,6 @@
 - http://api.vitaliytikhonov.ru/webdev/projects/mesto
 - https://www.api.vitaliytikhonov.ru/webdev/projects/mesto
 - https://api.vitaliytikhonov.ru/webdev/projects/mesto
-- http://130.193.56.51/
-- https://130.193.56.51/
 
 Дополнительно по адресу http://vitaliytikhonov.ru/webdev/projects/mesto/ размещен фронтенд проекта, созданный на предыдущих этапах курса. 
 ## Функционал проекта
