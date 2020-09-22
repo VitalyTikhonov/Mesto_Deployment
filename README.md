@@ -64,8 +64,8 @@ The server (api.vitaliytikhonov.ru/webdev/projects/mesto):
    - GET /users/:userId (returns the user),
    - GET /cards (returns all cards from the database),
    - POST /cards (creates a card),
-   - DELETE /cards /:cardId (deletes the card, provided that it belongs to the user),
-   - PUT /cards /<card_id>/likes (to like the card),
+   - DELETE /cards/:cardId (deletes the card, provided that it belongs to the user),
+   - PUT /cards/<card_id>/likes (to like the card),
    - DELETE /cards/<card_identifier>/likes (removes the like from the card),
 as well as requests to non-existent addresses, sending JSON objects in response.
 At the previous stages, frontend was implemented: see [Mesto_Webpack project](https://github.com/VitalyTikhonov/Mesto_Webpack/blob/master/README.md).
