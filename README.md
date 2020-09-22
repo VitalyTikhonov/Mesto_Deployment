@@ -1,5 +1,6 @@
 # Mesto_Deployment v1.0.0
-*For English scroll down*
+***For English scroll down***
+
 Учебное задание по разработке серверного приложения на Express.js, подключению его к базе данных MongoDB и развертыванию на облачном сервере с привязкой к доменному имени.
 В рамках задания реазиловано:
 - централизованная обработка ошибок;
@@ -40,7 +41,8 @@
 и др.
 ## Как воспользоваться проектом:
 - выполнять запросы к роутам проекта в сервисе Postman, по необходимости указывая в теле поля с данными.
----
+***
+***
 # Mesto_Deployment v1.0.0
 An academic project on developing a server application in Express.js, connecting it to a MongoDB database, binding to a domain name and deploying it to a cloud server.
 Implemented as part of the task:
@@ -67,7 +69,7 @@ The server (api.vitaliytikhonov.ru/webdev/projects/mesto):
    - PUT /cards /<card_id>/likes (to like the card),
    - DELETE /cards/<card_identifier>/likes (removes the like from the card),
 as well as requests to non-existent addresses, sending JSON objects in response.
-At the previous stages, frontend was implemented: see [Mesto_Webpack project] (https://github.com/VitalyTikhonov/Mesto_Webpack/blob/master/README.md).
+At the previous stages, frontend was implemented: see [Mesto_Webpack project](https://github.com/VitalyTikhonov/Mesto_Webpack/blob/master/README.md).
 ## Technologies used
 - MongoDB
 - Mongoose
