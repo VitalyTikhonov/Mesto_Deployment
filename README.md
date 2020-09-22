@@ -41,6 +41,7 @@
 и др.
 #### Как воспользоваться проектом:
 - выполнять запросы к роутам проекта в сервисе Postman, по необходимости указывая в теле поля с данными.
+###### В рамках курса "Веб-разработка" в Яндекс.Практикуме
 ***
 # Mesto_Deployment v1.0.0 (EN)
 An academic project on developing a server application in Express.js, connecting it to a MongoDB database, binding to a domain name and deploying it to a cloud server.
@@ -83,3 +84,4 @@ At the previous stages, frontend was implemented: see [Mesto_Webpack project](ht
 etc.
 #### How to use the project:
 - execute requests to the routes listed above in the Postman app, specifying data fields in the body, as necessary.
+###### As part of the Web-Development course at Yandex.Praktikum
