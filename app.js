@@ -32,16 +32,18 @@ app.use(limiter);
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(requestLogger);
-app.get(`${BASE_PATH}/crash-test`, () => {
+app.get(`${BASE_PATH}crash-test`, (req) => {
   setTimeout(() => {
+    const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    console.log('fullUrl', fullUrl);
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
-app.use(`${BASE_PATH}/signin`, signin);
-app.use(`${BASE_PATH}/signup`, signup);
+app.use(`${BASE_PATH}signin`, signin);
+app.use(`${BASE_PATH}signup`, signup);
 app.use(auth);
-app.use(`${BASE_PATH}/cards`, cards);
-app.use(`${BASE_PATH}/users`, users);
+app.use(`${BASE_PATH}cards`, cards);
+app.use(`${BASE_PATH}users`, users);
 app.use((req, res, next) => next(new NotFoundError()));
 app.use(errorLogger);
 app.use(celebValidateRequest);
