@@ -81,6 +81,7 @@ function login(req, res, next) {
           NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
           { expiresIn: '7d' },
         );
+        console.log('LOGIN MESTO token', token);
         res
           .cookie('jwt', token, { // отправляем токен
             maxAge: 3600000 * 24 * 7,

@@ -35,7 +35,7 @@ app.use(requestLogger);
 app.get(`${BASE_PATH}crash-test`, (req) => {
   setTimeout(() => {
     const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
-    console.log('fullUrl', fullUrl);
+    console.log('fullUrl MESTO', fullUrl);
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
