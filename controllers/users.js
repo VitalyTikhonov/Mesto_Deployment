@@ -11,7 +11,7 @@ const InvalidInputError = require('../errors/InvalidInputError');
 const UnknownRequestorError = require('../errors/UnknownRequestorError');
 const MissingCredentialsError = require('../errors/MissingCredentialsError');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { NODE_ENV, JWT_SECRET, JWT_COOKIE_NAME } = process.env;
 const { passwordRegexp } = require('../helpers/helpers');
 
 function createUser(req, res, next) {
@@ -83,7 +83,7 @@ function login(req, res, next) {
         );
         console.log('LOGIN MESTO token', token);
         res
-          .cookie('jwt', token, { // отправляем токен
+          .cookie(JWT_COOKIE_NAME, token, { // отправляем токен
             maxAge: 3600000 * 24 * 7,
             httpOnly: true,
             sameSite: true,

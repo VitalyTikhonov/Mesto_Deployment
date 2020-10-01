@@ -4,11 +4,11 @@ const User = require('../models/user');
 const NotAuthorizedError = require('../errors/NotAuthorizedError');
 const UnknownRequestorError = require('../errors/UnknownRequestorError');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { NODE_ENV, JWT_SECRET, JWT_COOKIE_NAME } = process.env;
 
 // eslint-disable-next-line consistent-return
 module.exports = async (req, res, next) => {
-  const token = req.cookies.jwt;
+  const token = req.cookies[JWT_COOKIE_NAME];
 
   if (!token) {
     return next(new NotAuthorizedError());
