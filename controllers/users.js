@@ -81,7 +81,6 @@ function login(req, res, next) {
           NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
           { expiresIn: '7d' },
         );
-        console.log('LOGIN MESTO token', token);
         res
           .cookie(JWT_COOKIE_NAME, token, { // отправляем токен
             maxAge: 3600000 * 24 * 7,
@@ -89,9 +88,6 @@ function login(req, res, next) {
             sameSite: true,
           })
           .end();
-
-        /* Как токен попадает в req.cookies.jwt при запросе логина, то есть еще до авторизации?.. */
-        // console.log('req.cookies.jwt', req.cookies.jwt);
       })
       .catch(next);
   }
