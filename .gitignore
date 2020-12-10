@@ -17,6 +17,6 @@ node_modules
 V_Tikhonov_Course_05_Project_15.*
 # DevNotes.txt
 DevNotes_Security.txt
-.env
+.env*
 PostmanRequests
 nginx_config_backup

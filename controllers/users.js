@@ -11,7 +11,7 @@ const InvalidInputError = require('../errors/InvalidInputError');
 const UnknownRequestorError = require('../errors/UnknownRequestorError');
 const MissingCredentialsError = require('../errors/MissingCredentialsError');
 
-const { NODE_ENV, JWT_SECRET, JWT_COOKIE_NAME } = process.env;
+const { JWT_SECRET, JWT_COOKIE_NAME } = require('../configs/config');
 const { passwordRegexp } = require('../helpers/helpers');
 
 function createUser(req, res, next) {
@@ -78,7 +78,7 @@ function login(req, res, next) {
         const token = jwt.sign( // делаем токен
           { _id: user._id },
           // { _id: '5f59fd0c710b20e7857e392' }, // невалидный айди для тестирования
-          NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+          JWT_SECRET,
           { expiresIn: '7d' },
         );
         res
@@ -92,6 +92,21 @@ function login(req, res, next) {
       .catch(next);
   }
   return next(new MissingCredentialsError());
+}
+
+function getCurrentUser(req, res, next) {
+  const userId = req.user._id;
+  /* идентификатор отправителя запроса (ПОДЧЕРКИВАНИЕ ПЕРЕД id!) */
+
+  User.findById(userId)
+    .orFail(new DocNotFoundError('user'))
+    .then((respObj) => {
+      res.send({
+        email: respObj.email,
+        name: respObj.name,
+      });
+    })
+    .catch(next);
 }
 
 function getAllUsers(req, res, next) {
@@ -168,6 +183,7 @@ function updateAvatar(req, res, next) {
 module.exports = {
   createUser,
   login,
+  getCurrentUser,
   getAllUsers,
   getSingleUser,
   updateProfile,

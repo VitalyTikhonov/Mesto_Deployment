@@ -6,6 +6,7 @@ const validator = require('validator');
 const { errors } = require('../helpers/errorMessages');
 
 const {
+  getCurrentUser,
   getAllUsers,
   getSingleUser,
   updateProfile,
@@ -14,6 +15,8 @@ const {
 
 /* РУТЕРЫ */
 router.get('/', getAllUsers);
+
+router.get('/me', getCurrentUser);
 
 router.get(
   '/:id',

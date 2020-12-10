@@ -1,10 +1,14 @@
-require('dotenv').config();
 const rateLimit = require('express-rate-limit');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
 const bodyParser = require('body-parser');
+const cors = require('cors');
+
+const { corsOptions } = require('./middleware/cors');
 const { requestLogger, errorLogger } = require('./middleware/logger');
+const { PORT, BASE_PATH, DATABASE_ADDRESS, NODE_ENV } = require('./configs/config');
 const signin = require('./routes/signin');
 const signup = require('./routes/signup');
 const cards = require('./routes/cards');
@@ -13,7 +17,7 @@ const auth = require('./middleware/auth');
 const celebValidateRequest = require('./middleware/requestValidators');
 const NotFoundError = require('./errors/NotFoundError');
 
-mongoose.connect('mongodb://localhost:27017/mestodb', {
+mongoose.connect(DATABASE_ADDRESS, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
@@ -21,13 +25,13 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 const app = express();
 
-const { PORT = 3000, BASE_PATH = '/' } = process.env;
-
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 });
 
+app.use('*', cors(corsOptions));
+app.use(helmet());
 app.use(limiter);
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -57,5 +61,5 @@ app.use((err, req, res, next) => {
   next();
 });
 app.listen(PORT, () => {
-  console.log(`Сервер запущен, порт: ${PORT}.`);
+  console.log(`Сервер запущен, порт: ${PORT}. NODE_ENV: ${NODE_ENV}`);
 });
