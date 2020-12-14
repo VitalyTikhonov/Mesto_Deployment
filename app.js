@@ -8,7 +8,12 @@ const cors = require('cors');
 
 const { corsOptions } = require('./middleware/cors');
 const { requestLogger, errorLogger } = require('./middleware/logger');
-const { PORT, BASE_PATH, DATABASE_ADDRESS, NODE_ENV } = require('./configs/config');
+const {
+  PORT,
+  BASE_PATH,
+  DATABASE_ADDRESS,
+  NODE_ENV,
+} = require('./configs/config');
 const signin = require('./routes/signin');
 const signup = require('./routes/signup');
 const cards = require('./routes/cards');
@@ -32,10 +37,10 @@ const limiter = rateLimit({
 
 app.use('*', cors(corsOptions));
 app.use(helmet());
-app.use(limiter);
+app.use(requestLogger); // перед rateLimiter
+app.use(limiter); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(requestLogger);
 // app.get(`${BASE_PATH}crash-test`, (req) => {
 //   setTimeout(() => {
 //     const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;

@@ -101,10 +101,7 @@ function getCurrentUser(req, res, next) {
   User.findById(userId)
     .orFail(new DocNotFoundError('user'))
     .then((respObj) => {
-      res.send({
-        email: respObj.email,
-        name: respObj.name,
-      });
+      res.send(respObj);
     })
     .catch(next);
 }

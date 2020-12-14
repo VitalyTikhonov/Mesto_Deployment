@@ -7,19 +7,19 @@ const { JWT_SECRET, JWT_COOKIE_NAME } = require('../configs/config');
 
 // eslint-disable-next-line consistent-return
 module.exports = async (req, res, next) => {
-  const token = req.cookies[JWT_COOKIE_NAME];
+  // const token = req.cookies[JWT_COOKIE_NAME];
 
-  if (!token) {
-    return next(new NotAuthorizedError());
-  }
+  // if (!token) {
+  //   return next(new NotAuthorizedError());
+  // }
 
-  let payload;
+  // let payload;
 
-  try {
-    payload = jwt.verify(token, JWT_SECRET);
-  } catch {
-    return next(new NotAuthorizedError());
-  }
+  // try {
+  //   payload = jwt.verify(token, JWT_SECRET);
+  // } catch {
+  //   return next(new NotAuthorizedError());
+  // }
 
   req.user = { _id: '5f4271b869f66ac6e5ea7997' }; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // req.user = payload;
