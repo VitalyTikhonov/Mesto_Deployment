@@ -1,8 +1,9 @@
 module.exports.errors = {
   invalidInput: {
+    userName: 'Ошибка в поле «Имя»',
     name: 'Ошибка в поле Name',
     email: 'Ошибка в поле Email',
-    about: 'Ошибка в поле About',
+    userDescription: 'Ошибка в поле «О себе»',
     avatar: 'Ошибка в URL аватарки',
     link: 'Ошибка в URL изображения',
   },

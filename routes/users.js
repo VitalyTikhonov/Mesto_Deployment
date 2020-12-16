@@ -37,8 +37,8 @@ router.patch(
   celebrate(
     {
       body: Joi.object().options({ abortEarly: false }).keys({
-        name: Joi.string().required().min(2).max(30),
-        about: Joi.string().required().min(2).max(30),
+        userName: Joi.string().required().min(2).max(30),
+        userDescription: Joi.string().required().min(2).max(30),
       }),
     },
     { warnings: true }, // просто чтобы позиционно распознавался следующий аргумент

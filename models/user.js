@@ -4,13 +4,13 @@ const validator = require('validator');
 const InvalidCredentialsError = require('../errors/InvalidCredentialsError');
 
 const userSchema = new mongoose.Schema({
-  name: {
+  userName: {
     type: String,
     required: true,
     minlength: 2,
     maxlength: 30,
   },
-  about: {
+  userDescription: {
     type: String,
     required: true,
     minlength: 2,

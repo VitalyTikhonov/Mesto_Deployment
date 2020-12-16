@@ -16,8 +16,8 @@ const { passwordRegexp } = require('../helpers/helpers');
 
 function createUser(req, res, next) {
   const {
-    name,
-    about,
+    userName,
+    userDescription,
     avatar,
     password,
     email,
@@ -33,8 +33,8 @@ function createUser(req, res, next) {
     bcrypt.hash(password, 10)
       .then((hash) => {
         User.create({
-          name,
-          about,
+          userName,
+          userDescription,
           avatar,
           password: hash,
           email,
@@ -43,8 +43,8 @@ function createUser(req, res, next) {
             /* переменная с деструктуризацией const {свойства} = respObj удалена
             для исключения ошибки линтинга */
             res.send({
-              name: respObj.name,
-              about: respObj.about,
+              userName: respObj.userName,
+              userDescription: respObj.userDescription,
               avatar: respObj.avatar,
               email: respObj.email,
               _id: respObj._id,
@@ -128,10 +128,10 @@ function getSingleUser(req, res, next) {
 function updateProfile(req, res, next) {
   try {
     const userId = req.user._id; // свой (проверяется в auth)
-    const { name, about } = req.body;
+    const { userName, userDescription } = req.body;
     User.findByIdAndUpdate(
       userId,
-      { name, about },
+      { userName, userDescription },
       {
         new: true,
         runValidators: true,
