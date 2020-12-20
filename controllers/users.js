@@ -114,6 +114,13 @@ function login(req, res, next) {
   return next(new MissingCredentialsError());
 }
 
+function logout(req, res) {
+  res
+    .clearCookie(JWT_COOKIE_NAME)
+    .send({ message: 'Досвидосы!' });
+  // .end();
+}
+
 function getCurrentUser(req, res, next) {
   const userId = req.user._id;
   /* идентификатор отправителя запроса (ПОДЧЕРКИВАНИЕ ПЕРЕД id!) */
@@ -200,6 +207,7 @@ function updateAvatar(req, res, next) {
 module.exports = {
   createUser,
   login,
+  logout,
   getCurrentUser,
   getAllUsers,
   getSingleUser,

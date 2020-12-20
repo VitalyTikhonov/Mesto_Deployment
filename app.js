@@ -16,6 +16,7 @@ const {
 } = require('./configs/config');
 const signin = require('./routes/signin');
 const signup = require('./routes/signup');
+const signout = require('./routes/signout');
 const cards = require('./routes/cards');
 const users = require('./routes/users');
 const auth = require('./middleware/auth');
@@ -50,6 +51,7 @@ app.use(cookieParser());
 // });
 app.use(`${BASE_PATH}signin`, signin);
 app.use(`${BASE_PATH}signup`, signup);
+app.use(`${BASE_PATH}signout`, signout);
 app.use(auth);
 app.use(`${BASE_PATH}cards`, cards);
 app.use(`${BASE_PATH}users`, users);
