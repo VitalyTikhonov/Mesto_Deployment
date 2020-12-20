@@ -42,13 +42,25 @@ function createUser(req, res, next) {
           .then((respObj) => {
             /* переменная с деструктуризацией const {свойства} = respObj удалена
             для исключения ошибки линтинга */
-            res.send({
-              userName: respObj.userName,
-              userDescription: respObj.userDescription,
-              avatar: respObj.avatar,
-              email: respObj.email,
-              _id: respObj._id,
-            });
+            const token = jwt.sign( // делаем токен
+              { _id: respObj._id },
+              // { _id: '5f59fd0c710b20e7857e392' }, // невалидный айди для тестирования
+              JWT_SECRET,
+              { expiresIn: '7d' },
+            );
+            res
+              .cookie(JWT_COOKIE_NAME, token, { // отправляем токен
+                maxAge: 3600000 * 24 * 7,
+                httpOnly: true,
+                sameSite: true,
+              })
+              .send({
+                userName: respObj.userName,
+                userDescription: respObj.userDescription,
+                avatar: respObj.avatar,
+                email: respObj.email,
+                _id: respObj._id,
+              });
           })
           .catch((err) => {
             if (err instanceof mongoose.Error.ValidationError) {
@@ -87,7 +99,15 @@ function login(req, res, next) {
             httpOnly: true,
             sameSite: true,
           })
-          .send({ name: user.name, email: user.email });
+          .send({
+            /* почему здесь не отрабатывает select: false и при отправке всего user
+            отправляется и пароль? */
+            userName: user.userName,
+            userDescription: user.userDescription,
+            avatar: user.avatar,
+            email: user.email,
+            _id: user._id,
+          });
       })
       .catch(next);
   }
