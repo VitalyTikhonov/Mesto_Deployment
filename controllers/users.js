@@ -87,7 +87,7 @@ function login(req, res, next) {
             httpOnly: true,
             sameSite: true,
           })
-          .end();
+          .send({ name: user.name, email: user.email });
       })
       .catch(next);
   }

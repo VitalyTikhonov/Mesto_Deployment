@@ -38,7 +38,7 @@ const limiter = rateLimit({
 app.use('*', cors(corsOptions));
 app.use(helmet());
 app.use(requestLogger); // перед rateLimiter
-app.use(limiter); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+app.use(limiter);
 app.use(bodyParser.json());
 app.use(cookieParser());
 // app.get(`${BASE_PATH}crash-test`, (req) => {
