@@ -14,25 +14,26 @@ const {
 /* РУТЕРЫ */
 router.get('/', getAllCards);
 
-router.post(
-  '/',
-  celebrate(
-    {
-      body: Joi.object().options({ abortEarly: false }).keys({
-        name: Joi.string().required().min(2).max(30),
-        link: Joi.string().required().custom((value) => {
-          if (!validator.isURL(value)) {
-            throw new Error(errors.invalidInput.link);
-          }
-          return value;
-        }),
-      }),
-    },
-    { warnings: true }, // просто чтобы позиционно распознавался следующий аргумент
-    { mode: 'full' },
-  ),
-  createCard,
-);
+/* ВРЕМЕННО ОТКЛЮЧЕН В ЦЕЛЯХ БЕЗОПАСНОСТИ */
+// router.post(
+//   '/',
+//   celebrate(
+//     {
+//       body: Joi.object().options({ abortEarly: false }).keys({
+//         name: Joi.string().required().min(2).max(30),
+//         link: Joi.string().required().custom((value) => {
+//           if (!validator.isURL(value)) {
+//             throw new Error(errors.invalidInput.link);
+//           }
+//           return value;
+//         }),
+//       }),
+//     },
+//     { warnings: true }, // просто чтобы позиционно распознавался следующий аргумент
+//     { mode: 'full' },
+//   ),
+//   createCard,
+// );
 
 router.delete(
   '/:cardId',
